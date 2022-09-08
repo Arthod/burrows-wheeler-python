@@ -1,5 +1,6 @@
 import copy
 import functools
+import random
 
 
 ALPHABET = ["a", "b", "c", "d", "e", "f", "g"]
@@ -35,10 +36,10 @@ def sort_bytes_matrix(bytes_matrix: list[list[int]], orderings=None) -> list[lis
     if (orderings is None):
         # Ordering: epsilon = "", x = None, "aa" = "aa".
         # "aa": [0, 1, 2, ...]
-        orderings = {"": [i for i in range(len(ALPHABET))]}
+        orderings = {"": list(range(len(ALPHABET)))}
 
     # Get orderings of each length, 1, 2, ... n - 1
-    print(orderings)
+    #print(orderings)
 
     # Sort according to 0 (epsilon="")
     sop = lambda bytes1, bytes2: sort_ordering(bytes1, bytes2, ordering=orderings[""], start_idx=0)
@@ -48,7 +49,7 @@ def sort_bytes_matrix(bytes_matrix: list[list[int]], orderings=None) -> list[lis
     if (len(orderings) > 1):
         for i in range(1, len(bytes_matrix[0])):
             orderings_keys = [key for key in orderings if key is not None and len(key) == i]
-            print(orderings_keys)
+            
             for key in orderings_keys:
                 sop = lambda bytes1, bytes2: sort_ordering(bytes1, bytes2, ordering=orderings[key], start_idx=i)
                 bytes_matrix.sort(key=functools.cmp_to_key(sop))
@@ -83,10 +84,10 @@ def bytes_to_str(bytes: list[int], letters: list[str]=None, sep: str="") -> str:
         letters = ALPHABET
     return sep.join(letters[b] for b in bytes)
 
-def runs_count(bytes: list[int]) -> int:
+def compute_runs_count(bytes: list[int]) -> int:
     runs_count = 0
-    for i in range(len(bytes)):
-        if (bytes[i - 1] < bytes[i]):
+    for i in range(len(bytes) - 1):
+        if (bytes[i] > bytes[i + 1]):
             runs_count += 1
     return runs_count
 
@@ -95,14 +96,29 @@ def reverse():
 
 if __name__ == "__main__":
     s = "aabaaabac"
+    s = "aaababababaaabaaaabaaaabbbbaabaaaababbbbbc"
     bytes = str_to_bytes(s, ALPHABET)
 
     orderings = {"": [1, 0, 2], "a": [2, 0, 1], "aa": [1, 0, 2], "aaba": [0, 2, 1], None: [0, 1, 2]}
     bytes_t = transform(bytes, orderings=orderings)
     print(bytes_t)
-    print(f"Runs count: {runs_count(bytes_t)}.")
+    print(f"Runs count: {compute_runs_count(bytes_t)}.")
 
+    runs_count_min = 10e6
+    while True:
+        orderings = {"": [0, 1, 2]}
+        for _ in range(20):
+            key = ""
+            while (random.choice([False, True, True])):
+                key += random.choice(["a", "b", "c"])
+            orderings[key] = random.sample(list(range(3)), 3)
 
-    bytes_t = transform(bytes, orderings=None)
-    print(bytes_t)
-    print(f"Runs count: {runs_count(bytes_t)}.")
+        orderings.update({None: [0, 1, 2]})
+        bytes_t = transform(bytes, orderings=orderings)
+        runs_count = compute_runs_count(bytes_t)
+
+        if (runs_count_min > runs_count):
+            runs_count_min = runs_count
+            print(orderings)
+            print(bytes_to_str(bytes_t))
+            print(f"Runs count: {runs_count}.")
