@@ -98,7 +98,7 @@ def reverse():
 if __name__ == "__main__":
     s = "aabaaabac"
     #s = "this string should be relatively easy to compress since there is probably a lot of repitions questionmark$"
-    s = "this string is highly compressible highly compress string is high ly string"
+    s = "this string is highly compressible highly compress string is high ly string which accepts the problem of compressibility"
     #s = "aaababababaaabaaaabaaaabbbbaabaaaababbbbbc"
     bytes = str_to_bytes(s, ALPHABET)
 
@@ -111,10 +111,10 @@ if __name__ == "__main__":
     runs_count_min = 10e6
     while True:
         orderings = {"": idx_list}
-        for _ in range(20):
+        for _ in range(50):
             key = ""
-            while (random.choice([False, True, True])):
-                key += random.choice(["a", "b", "c"])
+            while (random.choice([False, True])):
+                key += random.choice(list(set(s)))
             orderings[key] = random.sample(idx_list, len(idx_list))
 
         orderings.update({None: idx_list})
