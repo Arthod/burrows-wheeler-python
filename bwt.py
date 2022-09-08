@@ -1,3 +1,6 @@
+import copy
+
+
 ALPHABET = ["a", "b", "c", "d", "e", "f", "g"]
 
 def transform(string_bytes: list[int], verbose=0, verbose_letters=None) -> list[int]:
@@ -10,15 +13,15 @@ def transform(string_bytes: list[int], verbose=0, verbose_letters=None) -> list[
         bytes_matrix.append(string_bytes[i:len(string_bytes)] + string_bytes[:i])
     
     if (verbose >= 1):
-        print("Unsorted")
-        for bytes in bytes_matrix:
-            print(bytes_to_str(bytes, verbose_letters, sep=" "))
+        bytes_matrix_unsorted = copy.deepcopy(bytes_matrix)
 
     bytes_matrix = sorted(bytes_matrix)
     if (verbose >= 1):
-        print("Sorted")
-        for bytes in bytes_matrix:
-            print(bytes_to_str(bytes, verbose_letters, sep=" "))
+        print("Unsorted                 Sorted")
+        for bytes1, bytes2 in zip(bytes_matrix_unsorted, bytes_matrix):
+            old_string = bytes_to_str(bytes1, verbose_letters, sep=' ')
+            new_string = bytes_to_str(bytes2, verbose_letters, sep=' ')
+            print(f"{old_string}        {new_string}")
     
     last_row_bytes = [bytes[-1] for bytes in bytes_matrix]
     original_row_idx = bytes_matrix.index(string_bytes)
@@ -41,8 +44,6 @@ def reverse():
 if __name__ == "__main__":
     s = "aabaaabac"
     bytes = str_to_bytes(s, ALPHABET)
-    print(bytes)
-    print(bytes_to_str(bytes, ALPHABET))
 
     bytes_t = transform(bytes, verbose=1)
     print(bytes_t)
