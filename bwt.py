@@ -3,7 +3,7 @@ import copy
 
 ALPHABET = ["a", "b", "c", "d", "e", "f", "g"]
 
-def transform(string_bytes: list[int], verbose=0, verbose_letters=None) -> list[int]:
+def transform(string_bytes: list[int], orderings=None, verbose=0, verbose_letters=None) -> list[int]:
     if (verbose >= 1):
         if (verbose_letters is None):
             verbose_letters = ALPHABET
@@ -15,7 +15,7 @@ def transform(string_bytes: list[int], verbose=0, verbose_letters=None) -> list[
     if (verbose >= 1):
         bytes_matrix_unsorted = copy.deepcopy(bytes_matrix)
 
-    bytes_matrix = sorted(bytes_matrix)
+    bytes_matrix = sort_bytes_matrix(bytes_matrix)
     if (verbose >= 1):
         print("Unsorted                 Sorted")
         for bytes1, bytes2 in zip(bytes_matrix_unsorted, bytes_matrix):
@@ -30,8 +30,14 @@ def transform(string_bytes: list[int], verbose=0, verbose_letters=None) -> list[
     
     return last_row_bytes
     
+def sort_bytes_matrix(bytes_matrix: list[list[int]], orderings=None) -> list[list[int]]:
+    if (orderings is None):
+        # Ordering: epsilon = False, x = True, "aa" = "aa".
+        # "aa": [0, 1, 2, ...]
+        orderings = {True: [i for i in range(len(ALPHABET))]}
 
     
+
 def str_to_bytes(s: str, letters) -> list[int]:
     return [letters.index(c) for c in s]
 
