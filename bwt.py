@@ -33,7 +33,7 @@ def transform(string_bytes: list[int], orderings=None, verbose=0, verbose_letter
     if (verbose >= 1):
         print(f"L = {bytes_to_str(last_row_bytes, ALPHABET)}, I = {original_row_idx}")
     
-    return last_row_bytes
+    return last_row_bytes, original_row_idx
     
 def sort_bytes_matrix(bytes_matrix: list[list[int]], orderings=None) -> list[list[int]]:
     if (orderings is None):
@@ -108,11 +108,11 @@ if __name__ == "__main__":
 
     s = "mississippi$"
     bytes = str_to_bytes(s)
-    bytes_t = transform(bytes, orderings=None, verbose=1)
+    bytes_t, I = transform(bytes, orderings=None, verbose=1)
     #s = "this string should be relatively easy to compress since there is probably a lot of repitions questionmark$"
     s = "this string is highly compressible highly compress string is high ly string which accepts the problem of compressibility$"
     bytes = str_to_bytes(s)
-    bytes_t = transform(bytes, orderings=None, verbose=1)
+    bytes_t, I = transform(bytes, orderings=None, verbose=1)
     #print(compute_runs_count(str_to_bytes(s)))
     #s = "aaababababaaabaaaabaaaabbbbaabaaaababbbbbc"
 
@@ -124,23 +124,29 @@ if __name__ == "__main__":
     idx_list = list(range(len(ALPHABET)))
     strs_possible = list(set(s))
     runs_count_min = 10e6
-    while i < 100:
+    bytes_t_min = None
+    I_min = None
+    while i < 1000:
         orderings = {"": idx_list}
-        for _ in range(100):
+        for _ in range(20):
             key = ""
-            while (random.choice([False, True, True])):
+            while (random.choice([False, True])):
                 key += random.choice(strs_possible)
             orderings[key] = random.sample(idx_list, len(idx_list))
         orderings[None] = random.sample(idx_list, len(idx_list))
 
-        bytes_t = transform(bytes, orderings=orderings)
+        bytes_t, I = transform(bytes, orderings=orderings)
         runs_count = compute_runs_count(bytes_t)
         
-        runs_count_min = min(runs_count_min, runs_count)
+        if (runs_count_min > runs_count):
+            runs_count_min = runs_count
+            bytes_t_min = bytes_t
+            I_min = I
 
         i += 1
 
     print(f"time diff: {time.time() - time_start}, run_min: {runs_count_min}")
+    print(f"L = {bytes_to_str(bytes_t_min)}, I = {I_min}")
 
     """
     idx_list = list(range(len(ALPHABET)))
