@@ -1,9 +1,10 @@
 import copy
 import functools
 import random
+import string
 
 
-ALPHABET = ["a", "b", "c", "d", "e", "f", "g"]
+ALPHABET = list(string.ascii_letters) + [" ", "$"]
 
 def transform(string_bytes: list[int], orderings=None, verbose=0, verbose_letters=None) -> list[int]:
     if (verbose >= 1):
@@ -96,24 +97,27 @@ def reverse():
 
 if __name__ == "__main__":
     s = "aabaaabac"
-    s = "aaababababaaabaaaabaaaabbbbaabaaaababbbbbc"
+    #s = "this string should be relatively easy to compress since there is probably a lot of repitions questionmark$"
+    s = "this string is highly compressible highly compress string is high ly string"
+    #s = "aaababababaaabaaaabaaaabbbbaabaaaababbbbbc"
     bytes = str_to_bytes(s, ALPHABET)
 
-    orderings = {"": [1, 0, 2], "a": [2, 0, 1], "aa": [1, 0, 2], "aaba": [0, 2, 1], None: [0, 1, 2]}
-    bytes_t = transform(bytes, orderings=orderings)
+    print("NORMAL BURROWS WHEELER")
+    bytes_t = transform(bytes, orderings=None)
     print(bytes_t)
     print(f"Runs count: {compute_runs_count(bytes_t)}.")
 
+    idx_list = list(range(len(ALPHABET)))
     runs_count_min = 10e6
     while True:
-        orderings = {"": [0, 1, 2]}
+        orderings = {"": idx_list}
         for _ in range(20):
             key = ""
             while (random.choice([False, True, True])):
                 key += random.choice(["a", "b", "c"])
-            orderings[key] = random.sample(list(range(3)), 3)
+            orderings[key] = random.sample(idx_list, len(idx_list))
 
-        orderings.update({None: [0, 1, 2]})
+        orderings.update({None: idx_list})
         bytes_t = transform(bytes, orderings=orderings)
         runs_count = compute_runs_count(bytes_t)
 
