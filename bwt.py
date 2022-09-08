@@ -4,7 +4,7 @@ import random
 import string
 
 
-ALPHABET = list(string.ascii_letters) + [" ", "$"]
+ALPHABET = ["$"] + list(string.ascii_letters) + [" "]
 
 def transform(string_bytes: list[int], orderings=None, verbose=0, verbose_letters=None) -> list[int]:
     if (verbose >= 1):
@@ -66,13 +66,14 @@ def sort_bytes_matrix(bytes_matrix: list[list[int]], orderings=None) -> list[lis
 def sort_ordering(bytes1, bytes2, ordering: list[int], start_idx=0) -> bool:
     if (bytes1[:start_idx] != bytes2[:start_idx]):
         return 0
-    result = 1
+    
     for a, b in list(zip(bytes1, bytes2))[start_idx:]:
-        if (ordering.index(a) < ordering.index(b)): # TODO: Skal der være <=?
-            result = -1
-        else:
-            break
-    return result
+        if (a != b):
+            a_idx = ordering.index(a)
+            b_idx = ordering.index(b)
+
+            return a_idx - b_idx
+    return 0
 
 
 def str_to_bytes(s: str, letters: list[str]=None) -> list[int]:
@@ -88,7 +89,7 @@ def bytes_to_str(bytes: list[int], letters: list[str]=None, sep: str="") -> str:
 def compute_runs_count(bytes: list[int]) -> int:
     runs_count = 0
     for i in range(len(bytes) - 1):
-        if (bytes[i] > bytes[i + 1]):
+        if (bytes[i] != bytes[i + 1]):
             runs_count += 1
     return runs_count
 
@@ -96,28 +97,32 @@ def reverse():
     pass
 
 if __name__ == "__main__":
-    s = "aabaaabac"
+
+
+    s = "mississippi$"
+    print(compute_runs_count(str_to_bytes(s)))
     #s = "this string should be relatively easy to compress since there is probably a lot of repitions questionmark$"
-    s = "this string is highly compressible highly compress string is high ly string which accepts the problem of compressibility"
+    #s = "this string is highly compressible highly compress string is high ly string which accepts the problem of compressibility"
     #s = "aaababababaaabaaaabaaaabbbbaabaaaababbbbbc"
     bytes = str_to_bytes(s, ALPHABET)
 
     print("NORMAL BURROWS WHEELER")
-    bytes_t = transform(bytes, orderings=None)
+    bytes_t = transform(bytes, orderings=None, verbose=1)
     print(bytes_t)
+    print(bytes_to_str(bytes_t))
     print(f"Runs count: {compute_runs_count(bytes_t)}.")
 
     idx_list = list(range(len(ALPHABET)))
     runs_count_min = 10e6
     while True:
         orderings = {"": idx_list}
-        for _ in range(50):
+        for _ in range(20):
             key = ""
             while (random.choice([False, True])):
                 key += random.choice(list(set(s)))
             orderings[key] = random.sample(idx_list, len(idx_list))
+        orderings[None] = random.sample(idx_list, len(idx_list))
 
-        orderings.update({None: idx_list})
         bytes_t = transform(bytes, orderings=orderings)
         runs_count = compute_runs_count(bytes_t)
 
@@ -126,3 +131,7 @@ if __name__ == "__main__":
             print(orderings)
             print(bytes_to_str(bytes_t))
             print(f"Runs count: {runs_count}.")
+            if (bytes_to_str(bytes_t) == "aaaaaabbc"):
+                print("DONE")
+
+    
