@@ -45,18 +45,18 @@ def sort_bytes_matrix(bytes_matrix: list[list[int]], orderings=None) -> list[lis
     bytes_matrix.sort(key=functools.cmp_to_key(sop))
 
     # Sort according to 1, 2, ... n - 1
-    for i in range(1, len(bytes_matrix[0])):
-        orderings_keys = [key for key in orderings if key is not None and len(key) == i]
-        print(orderings_keys)
-        for key in orderings_keys:
-            sop = lambda bytes1, bytes2: sort_ordering(bytes1, bytes2, ordering=orderings[key], start_idx=i)
-            bytes_matrix.sort(key=functools.cmp_to_key(sop))
+    if (len(orderings) > 1):
+        for i in range(1, len(bytes_matrix[0])):
+            orderings_keys = [key for key in orderings if key is not None and len(key) == i]
+            print(orderings_keys)
+            for key in orderings_keys:
+                sop = lambda bytes1, bytes2: sort_ordering(bytes1, bytes2, ordering=orderings[key], start_idx=i)
+                bytes_matrix.sort(key=functools.cmp_to_key(sop))
 
     # Sort according to n (x=None)
-    print(bytes_matrix[0])
-    print(orderings[None])
-    sop = lambda bytes1, bytes2: sort_ordering(bytes1, bytes2, ordering=orderings[None], start_idx=i)
-    bytes_matrix.sort(key=functools.cmp_to_key(sop))
+    if (None in orderings):
+        sop = lambda bytes1, bytes2: sort_ordering(bytes1, bytes2, ordering=orderings[None], start_idx=i)
+        bytes_matrix.sort(key=functools.cmp_to_key(sop))
 
     return bytes_matrix
 
@@ -83,6 +83,13 @@ def bytes_to_str(bytes: list[int], letters: list[str]=None, sep: str="") -> str:
         letters = ALPHABET
     return sep.join(letters[b] for b in bytes)
 
+def runs_count(bytes: list[int]) -> int:
+    runs_count = 0
+    for i in range(len(bytes)):
+        if (bytes[i - 1] < bytes[i]):
+            runs_count += 1
+    return runs_count
+
 def reverse():
     pass
 
@@ -91,5 +98,11 @@ if __name__ == "__main__":
     bytes = str_to_bytes(s, ALPHABET)
 
     orderings = {"": [1, 0, 2], "a": [2, 0, 1], "aa": [1, 0, 2], "aaba": [0, 2, 1], None: [0, 1, 2]}
-    bytes_t = transform(bytes, orderings=orderings, verbose=1)
+    bytes_t = transform(bytes, orderings=orderings)
     print(bytes_t)
+    print(f"Runs count: {runs_count(bytes_t)}.")
+
+
+    bytes_t = transform(bytes, orderings=None)
+    print(bytes_t)
+    print(f"Runs count: {runs_count(bytes_t)}.")
