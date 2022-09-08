@@ -1,4 +1,5 @@
 import copy
+import functools
 
 
 ALPHABET = ["a", "b", "c", "d", "e", "f", "g"]
@@ -15,7 +16,7 @@ def transform(string_bytes: list[int], orderings=None, verbose=0, verbose_letter
     if (verbose >= 1):
         bytes_matrix_unsorted = copy.deepcopy(bytes_matrix)
 
-    bytes_matrix = sort_bytes_matrix(bytes_matrix)
+    bytes_matrix = sort_bytes_matrix(bytes_matrix, orderings=orderings)
     if (verbose >= 1):
         print("Unsorted                 Sorted")
         for bytes1, bytes2 in zip(bytes_matrix_unsorted, bytes_matrix):
@@ -36,7 +37,28 @@ def sort_bytes_matrix(bytes_matrix: list[list[int]], orderings=None) -> list[lis
         # "aa": [0, 1, 2, ...]
         orderings = {True: [i for i in range(len(ALPHABET))]}
 
-    
+    print(orderings)
+    matrix_subordering_idxs = []
+
+    # Sort according to 0 (epsilon=False)
+    sop = lambda bytes1, bytes2: sort_ordering(bytes1, bytes2, orderings[True])
+    bytes_matrix.sort(key=functools.cmp_to_key(sop))
+
+    # Sort according to 1, 2, ... n - 1
+    for i in range(1, len(bytes_matrix[0])):
+        pass
+
+    # Sort according to n (x=True)
+
+    return bytes_matrix
+
+
+def sort_ordering(bytes1, bytes2, ordering: list[int]) -> bool:
+    for a, b in zip(bytes1, bytes2):
+        if (ordering.index(a) > ordering.index(b)):
+            return -1
+    return 1
+
 
 def str_to_bytes(s: str, letters) -> list[int]:
     return [letters.index(c) for c in s]
@@ -51,5 +73,6 @@ if __name__ == "__main__":
     s = "aabaaabac"
     bytes = str_to_bytes(s, ALPHABET)
 
-    bytes_t = transform(bytes, verbose=1)
+    orderings = {True: [1, 0, 2]}
+    bytes_t = transform(bytes, orderings=orderings, verbose=1)
     print(bytes_t)
